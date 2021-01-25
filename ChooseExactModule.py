@@ -1,3 +1,5 @@
+import random
+
 import PySimpleGUI as SimpleGui
 import logging
 import IntervalGenerator as IntervalGenerator
@@ -5,53 +7,40 @@ import IntervalPlayer as IntervalPlayer
 import IntervalComparer as IntComparer
 
 
-class ChooseHigherModule:
-
+class ChooseExactModule:
     def __init__(self):
-        self.first_interval = IntervalGenerator.get_random_interval()
-        self.second_interval = IntervalGenerator.get_random_interval_from_root(self.first_interval.root)
-
+        self.window = None
         self.correct_tries = 0
         self.all_tries = 0
-        self.window = None
 
     def run_module(self):
-        SimpleGui.theme('DarkAmber')
-        layout = [[SimpleGui.Text('Choose higher interval')],
+        layout = [[SimpleGui.Text('Choose exact interval')],
                   [SimpleGui.Text('_' * 100, size=(65, 1))],
                   [SimpleGui.Text('All tries: '), SimpleGui.Text(self.all_tries, size=(10, 1), key="AllTries")],
                   [SimpleGui.Text('Correct tries: '),
                    SimpleGui.Text(self.correct_tries, size=(10, 1), key="CorrectTries")],
                   [SimpleGui.Text('_' * 100, size=(65, 1))],
                   [SimpleGui.Button('Play Interval', size=(15, 1))],
-                  [SimpleGui.Button('Left'), SimpleGui.Button('Same'), SimpleGui.Button('Right')],
+                  [SimpleGui.Button('Left', key='LeftAnswer', size=(15, 1)),
+                   SimpleGui.Button('Right', key='RightAnswer', size=(15, 1))],
                   [SimpleGui.Text('Last answer: '), SimpleGui.Text("", size=(10, 1), key="LastAnswer")],
                   [SimpleGui.Text('_' * 100, size=(65, 1))],
                   [SimpleGui.Button('Back to menu', size=(15, 1))]]
 
-        # Create the Window
-        self.window = SimpleGui.Window("ChooseHigher", layout, size=(400, 500), element_justification='c')
+        self.window = SimpleGui.Window("Choose Exact", layout, size=(400, 500), element_justification='c')
+        self.window.finalize()
+        self.__common_answer()
 
-        # Event Loop to process "events" and get the "values" of the inputs
         while True:
             event, values = self.window.read()
             if event == SimpleGui.WIN_CLOSED or event == 'Back to menu':
                 break
-
             if event == 'Play Interval':
-                IntervalPlayer.play_two_intervals(self.first_interval, self.second_interval)
-
-            if event == 'Left' and IntComparer.check_if_first_greater(self.first_interval, self.second_interval):
-                self.__correct_answer()
-
-            elif event == 'Right' and IntComparer.check_if_first_greater(self.second_interval, self.first_interval):
-                self.__correct_answer()
-
-            elif event == 'Same' and IntComparer.check_if_are_same(self.first_interval, self.second_interval):
-                self.__correct_answer()
-
-            elif event == 'Right' or event == 'Left' or event == 'Same':
-                self.__wrong_answer()
+                IntervalPlayer.play_interval(self.correct)
+            if event == 'LeftAnswer':
+                self.__left_choosen()
+            if event == 'RightAnswer':
+                self.__right_choosen()
 
         self.window.close()
         return
@@ -74,14 +63,30 @@ class ChooseHigherModule:
         self.__common_answer()
 
     def __common_answer(self):
+        self.correct = IntervalGenerator.get_random_not_egdy_number()
+        close_intervals = [self.correct.get_augmented_interval(), self.correct.get_diminished_interval()]
+        incorrect = random.choice(close_intervals)
+
+        options = [self.correct, incorrect]
+        random.shuffle(options)
+
+        self.correct_button = 'LeftAnswer' if options[0] == self.correct else 'RightAnswer'
+        self.window['LeftAnswer'].update(options[0].get_interval_name())
+        self.window['RightAnswer'].update(options[1].get_interval_name())
 
         self.window["AllTries"].update(self.all_tries)
         self.window["CorrectTries"].update(self.correct_tries)
 
-        self.first_interval, self.second_interval = self.__get_new_intervals()
+    def __left_choosen(self):
+        logging.debug("Left button clicked!")
+        if self.correct_button == 'LeftAnswer':
+            self.__correct_answer()
+        else:
+            self.__wrong_answer()
 
-    @staticmethod
-    def __get_new_intervals():
-        first = IntervalGenerator.get_random_interval()
-        second = IntervalGenerator.get_random_interval_from_root(first.root)
-        return first, second
+    def __right_choosen(self):
+        logging.debug("Right button clicked!")
+        if self.correct_button == 'RightAnswer':
+            self.__correct_answer()
+        else:
+            self.__wrong_answer()

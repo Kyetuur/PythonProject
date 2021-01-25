@@ -1,4 +1,4 @@
-notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'G', 'G#', 'A', 'A#', 'B']
+notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 intervalNames = {
     0: 'unison',
     1: 'minor second',
@@ -26,6 +26,27 @@ class Interval:
 
     def get_interval_name(self):
         return intervalNames[self.get_interval_number()]
+
+    def get_diminished_interval(self):
+        if self.get_interval_number() == 0:
+            raise ValueError("Unision doesn't have dimished interval")
+
+        if notes.index(self.root) > notes.index(self.secondNote):
+            raise ValueError("Not support decreasing intervals")
+
+        return Interval(self.root, notes[notes.index(self.secondNote) - 1])
+
+    def get_augmented_interval(self):
+        if self.secondNote == 'B':
+            raise ValueError("Augmented interval out of octave")
+
+        if notes.index(self.root) > notes.index(self.secondNote):
+            raise ValueError("Not support decreasing intervals")
+
+        return Interval(self.root, notes[notes.index(self.secondNote) + 1])
+
+    def check_if_increasing(self):
+        return notes.index(self.root) <= notes.index(self.secondNote)
 
     def __str__(self):
         if notes.index(self.root) < notes.index(self.secondNote):
