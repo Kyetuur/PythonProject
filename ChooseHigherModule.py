@@ -16,7 +16,6 @@ class ChooseHigherModule:
         self.window = None
 
     def run_module(self):
-        SimpleGui.theme('DarkAmber')
         layout = [[SimpleGui.Text('Choose higher interval')],
                   [SimpleGui.Text('_' * 100, size=(65, 1))],
                   [SimpleGui.Text('All tries: '), SimpleGui.Text(self.all_tries, size=(10, 1), key="AllTries")],

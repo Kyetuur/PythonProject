@@ -102,3 +102,26 @@ def test_decreasing_augmented_should_raise():
     with pytest.raises(ValueError):
         interval = Interval.Interval('B', 'A#')
         interval.get_augmented_interval()
+
+
+notes_with_bemols = [('A', 'G#'),
+                     ('A#', 'A'),
+                     ('B', 'A#'),
+                     ('C', 'B'),
+                     ('C#', 'C'),
+                     ('D', 'C#'),
+                     ('D#', 'D'),
+                     ('E', 'D#'),
+                     ('F', 'E'),
+                     ('F#', 'F'),
+                     ('G', 'F#'),
+                     ('G#', 'G')]
+
+
+@pytest.mark.parametrize("note,bemol", notes_with_bemols)
+def test_bemol(note, bemol):
+    assert Interval.get_bemol(note) == bemol
+
+@pytest.mark.parametrize("note,bemol", notes_with_bemols)
+def test_sharp(note,bemol):
+    assert Interval.get_sharp(bemol) == note

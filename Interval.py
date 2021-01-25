@@ -53,3 +53,10 @@ class Interval:
             return f'''Notes ({self.root}, {self.secondNote}) : {self.get_interval_name()} | Increasing'''
         else:
             return f'''Notes ({self.secondNote}, {self.root}) : {self.get_interval_name()} | Decreasing'''
+
+
+def get_bemol(note):
+    return notes[(notes.index(note) - 1) % len(notes)]
+
+def get_sharp(note):
+    return notes[(notes.index(note) + 1) % len(notes)]
